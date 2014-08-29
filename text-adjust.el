@@ -1,16 +1,46 @@
+;;;; text-adjust.el --- replace zenkaku charactor to hankaku character
 ;;
+;; Copyright(C) 2002 Hiroyuki Komatsu <komatsu@taiyaki.org>
+;;              2014 Youhei SASAKI
+;;
+;; Author: Youhei SASAKI <uwabami@gfd-dennou.org>
+;; URL: https://github.com/uwabami/text-adjust.el
+;; Version: 1.2
+;; License: GPL-3+
+;; $Lastupdate: 2014-08-29 17:50:09$
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;
+;;; Documents:
+;; ---- original ----
 ;; text-adjust.el 日本語の文章を整形する.
 ;;
-;;  By 小松弘幸  Hiroyuki Komatsu <komatsu@taiyaki.org>
+;;   By 小松弘幸  Hiroyuki Komatsu <komatsu@taiyaki.org>
 ;;
 ;; このコードは GPL に従って配布可能です. (This is GPLed software.)
+;; ---- original ----
 ;;
-;; ■インストール方法
-;; 1) .emacs に次の 2 行を追加する.
+;; Update: Youhei SASAKI
+;; - Drop XEmacs support (remove mell dependencies)
+;;
+;;
+;; * install
+;;
 ;; (setq load-path (cons (expand-file-name "~/elisp") load-path))
 ;; (load "text-adjust")
 ;;
-;; ■使い方
+;; * usage
 ;; 1) M-x text-adjust を実行すると文章が整形される.
 ;; 2) 使用可能な関数の概要.
 ;;     text-adjust-codecheck : 半角カナ, 規格外文字を「〓」に置き換える.
@@ -26,7 +56,7 @@
 ;;     *-buffer : 上記関数をバッファ内で実行する.
 ;;
 ;;
-;; ■Tips
+;; * Tips
 ;; 1) 次のように設定すると, text-adjust-fill-region 実行時に,
 ;;  左マージンが考慮される.
 ;;  | (setq adaptive-fill-regexp "[ \t]*")
@@ -36,9 +66,10 @@
 ;;  text-adjust-hankaku-except に文字を追加すれば可能になります.
 ;;  | (setq text-adjust-hankaku-except "　？！＠ー〜、，。．")
 ;;
+;;
 (defvar text-adjust-hankaku-except "＠ー〜、，。．"
   "text-adjust-hankaku で半角にされたくない文字列. 正規表現ではない.")
-
+;;
 ;; text-adjust-rule のフォーマットは
 ;; (("左端文字列" "対象文字列" "右端文字列") "変換文字列") という構成の
 ;; リストです. "左端文字列", "対象文字列", "右端文字列" は正規表現で
@@ -71,8 +102,7 @@
 ;; 主に変換をさせたくない個所をスキップする目的で用意されています.
 ;; text-adjust-rule-space, text-adjust-rule-kutouten,
 ;; text-adjust-rule-codecheck のそれぞれの先頭に追加されたのち, 実行されます.
-
-
+;;
 ;; 日本語用正規表現 (M-x describe-category を参照)
 ;\\cK カタカナ
 ;\\cC 漢字
@@ -129,7 +159,6 @@ nil の場合, バッファごとに選択可能.")
 
 (global-set-key [(meta zenkaku-hankaku)] 'text-adjust)
 
-
 ;;;; text-adjust
 (defun text-adjust (&optional force-kutouten-rule)
   "日本語文章を整形する.
@@ -161,8 +190,7 @@ text-adjust-space を順に実行することにより,
     (text-adjust-space-region (point-min) (point-max))
 ;    (text-adjust-fill)
     ))
-
-
+;;
 ;;;; text-adjust-codecheck
 ;;;; jischeck.el より引用
 ;;
@@ -245,7 +273,8 @@ text-adjust-space を順に実行することにより,
   (save-excursion
     (let ((tmp-table (text-adjust--copy-char-table char-code-property-table)))
       (text-adjust--modify-char-table ?　 (list 'ascii "  "))
-      (mapcar '(lambda (c) (text-adjust--modify-char-table c nil))
+      (mapc
+       (lambda (c) (text-adjust--modify-char-table c nil))
        (string-to-list text-adjust-hankaku-except))
       (japanese-hankaku-region from to t)
       (setq char-code-property-table
@@ -407,7 +436,7 @@ text-adjust-fill-regexp が最後に含まれているところで改行する.
         ; 該当パターンと置換する
         (let* ((tmp n)
            (total-counts
-            (cons n (mapcar (lambda (x) (setq tmp (+ tmp x 1)))
+            (cons n (mapc (lambda (x) (setq tmp (+ tmp x 1)))
                     (nth m counts))))
            (right-string (match-string (nth 2 total-counts))))
           (replace-match
@@ -433,11 +462,11 @@ text-adjust-fill-regexp が最後に含まれているところで改行する.
            (format "\\(%s\\)\\(%s\\)\\(%s\\)"
                (nth 0 (car x)) (nth 1 (car x)) (nth 2 (car x))))
          rule "\\|"))
-    (target (mapcar
+    (target (mapc
          (lambda (x)
            (text-adjust--parse-replace-string (nth 1 x)))
          rule))
-    (counts (mapcar
+    (counts (mapc
          (lambda (x)
            (list (count-string-match "\\\\(" (nth 0 (car x)))
              (count-string-match "\\\\(" (nth 1 (car x)))
@@ -463,4 +492,9 @@ text-adjust-fill-regexp が最後に含まれているところで改行する.
 
 
 (provide 'text-adjust)
-; $Id: text-adjust.el,v 1.1.1.1 2002/08/25 14:24:48 komatsu Exp $
+;; Local Variables:
+;; coding: utf-8-unix
+;; after-save-hook: (lambda () (byte-compile-file (buffer-file-name)))
+;; indent-tabs-mode: nil
+;; End:
+;;; template.el ends here
