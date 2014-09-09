@@ -5,9 +5,9 @@
 ;;
 ;; Author: Youhei SASAKI <uwabami@gfd-dennou.org>
 ;; URL: https://github.com/uwabami/text-adjust.el
-;; Version: 1.2
+;; Version: 1.2.1
 ;; License: GPL-3+
-;; $Lastupdate: 2014-08-29 17:50:09$
+;; $Lastupdate: 2014-09-09 16:10:35$
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@
 ;;
 ;; Update: Youhei SASAKI
 ;; - Drop XEmacs support (remove mell dependencies)
-;;
 ;;
 ;; * install
 ;;
@@ -157,7 +156,11 @@ nil の場合, バッファごとに選択可能.")
   "各行とも, この値から fill-column までの値までが\
  text-adjust-fill の有効範囲.")
 
-(global-set-key [(meta zenkaku-hankaku)] 'text-adjust)
+(defun text-adjust--transient-region-active-p ()
+  (and (and (boundp 'transient-mark-mode)
+            (symbol-value 'transient-mark-mode))
+       (and (boundp 'mark-mode)
+            (symbol-value 'mark-mode))))
 
 ;;;; text-adjust
 (defun text-adjust (&optional force-kutouten-rule)
@@ -169,8 +172,8 @@ text-adjust-space を順に実行することにより,
 得られた範囲を対象にする."
   (interactive "P")
   (save-excursion
-    (or (transient-region-active-p)
-    (mark-paragraph))
+    (or (text-adjust--transient-region-active-p)
+        (mark-paragraph))
     (text-adjust-region (region-beginning) (region-end) force-kutouten-rule)))
 
 (defun text-adjust-buffer (&optional force-kutouten-rule)
@@ -221,11 +224,9 @@ text-adjust-space を順に実行することにより,
     (let ((page 41))
       (define-category ?@ "invalid japanese char category")
       (while (<= page 126)
-    (if running-xemacs
-        (modify-category-entry `[japanese-jisx0208 ,page] ?@)
-      (modify-category-entry (make-char 'japanese-jisx0208 page) ?@))
-    (setq page
-          (if (= page 47) 117 (1+ page))))))
+        (modify-category-entry (make-char 'japanese-jisx0208 page) ?@)
+        (setq page
+              (if (= page 47) 117 (1+ page))))))
 
 (defun text-adjust-codecheck (&optional from to)
   "無効な文字コードを text-adjust-codecheck-alarm に置き換える.
@@ -234,7 +235,7 @@ text-adjust-space を順に実行することにより,
 得られた範囲を対象にする."
   (interactive)
   (save-excursion
-    (or (transient-region-active-p)
+    (or (text-adjust--transient-region-active-p)
     (mark-paragraph))
     (text-adjust-codecheck-region (region-beginning) (region-end))))
 
@@ -257,7 +258,7 @@ text-adjust-space を順に実行することにより,
 得られた範囲を対象にする."
   (interactive)
   (save-excursion
-    (or (transient-region-active-p)
+    (or (text-adjust--transient-region-active-p)
     (mark-paragraph))
     (text-adjust-hankaku-region (region-beginning) (region-end))))
 
@@ -297,7 +298,7 @@ text-adjust-space を順に実行することにより,
 得られた範囲を対象にする."
   (interactive)
   (save-excursion
-    (or (transient-region-active-p)
+    (or (text-adjust--transient-region-active-p)
     (mark-paragraph))
     (text-adjust-kutouten-region (region-beginning) (region-end) forcep)))
 
@@ -346,7 +347,7 @@ text-adjust-ascii で定義された半角英数文字を示す正規表現と�
 得られた範囲を対象にする."
   (interactive)
   (save-excursion
-    (or (transient-region-active-p)
+    (or (text-adjust--transient-region-active-p)
     (mark-paragraph))
     (text-adjust-space-region (region-beginning) (region-end))))
 
@@ -371,7 +372,7 @@ text-adjust-fill-regexp が最後に含まれているところで改行する.
 得られた範囲を対象にする."
   (interactive)
   (save-excursion
-    (or (transient-region-active-p)
+    (or (text-adjust--transient-region-active-p)
     (mark-paragraph))
     (text-adjust-fill-region (region-beginning) (region-end))))
 
@@ -456,6 +457,13 @@ text-adjust-fill-regexp が最後に含まれているところで改行する.
           (backward-char (length right-string))))))
       )))
 
+(defun text-adjust--count-string-match (regexp string)
+  (save-match-data
+    (let ((i 0) (n 0))
+      (while (and (string-match regexp string i) (< i (match-end 0)))
+        (setq i (match-end 0))
+        (setq n (1+ n))) n)))
+
 (defun text-adjust--make-rule-pattern (rule)
   (let ((regexp (mapconcat
          (lambda (x)
@@ -468,9 +476,9 @@ text-adjust-fill-regexp が最後に含まれているところで改行する.
          rule))
     (counts (mapc
          (lambda (x)
-           (list (count-string-match "\\\\(" (nth 0 (car x)))
-             (count-string-match "\\\\(" (nth 1 (car x)))
-             (count-string-match "\\\\(" (nth 2 (car x)))))
+           (list (text-adjust--count-string-match "\\\\(" (nth 0 (car x)))
+                 (text-adjust--count-string-match "\\\\(" (nth 1 (car x)))
+                 (text-adjust--count-string-match "\\\\(" (nth 2 (car x)))))
          rule)))
     (list regexp target counts)))
 
