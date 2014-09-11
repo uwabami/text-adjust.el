@@ -6,11 +6,6 @@ What is this?
 
 Hiroyuki Komatsu さんが公開されていた text-adjust.el をひっそりと更新してみました.
 
-やった事は 
-* mell 依存の削除: XEmacs support はサポートしない(使わない)
-* 幾つかの obsolete warning の修正
-です
-
 Install
 -------
 
@@ -53,5 +48,4 @@ Tips
 License
 -------
 
-元のコードが `GPL` としか書かれていなかったのですが,
-とりあえず `GPL-3+` にしておきます. 
+`mell.el` がコードが `GPL-2` ですので. `GPL-2+` にしておきます. 
