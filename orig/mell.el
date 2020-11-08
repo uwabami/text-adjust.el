@@ -143,7 +143,7 @@
 	(setq start (+ start (length list))))
     (if (null end)
 	(nthcdr start (copy-sequence list))
-      (and end (< end 0) 
+      (and end (< end 0)
 	   (setq end (+ end (length list))))
       (let (sublist tmp)
 	(if (> start end)
@@ -287,7 +287,7 @@
 	(goto-char begin)
 	))
   )
-  
+
 (defun mell-region-get-rectangle-list (start end &optional buffer)
   (save-excursion
     (and buffer (set-buffer buffer))
@@ -304,14 +304,14 @@
       (goto-char point-min)
       (while (< (point) point-max)
 	(move-to-column column-min)
-	(setq rectangle-alist 
+	(setq rectangle-alist
 	      (cons (cons (point) (mell-point-at-column column-max))
 		    rectangle-alist))
 	(forward-line 1)
 	)
       (reverse rectangle-alist)
       )))
-      
+
 (put 'mell-region-rectangle-while 'lisp-indent-function 1)
 (defmacro mell-region-rectangle-while (rectangle &rest body)
   `(let ((rectangle-markers
@@ -383,7 +383,7 @@
 	(setq i (match-end 0))
 	(setq n (1+ n)))
       n)))
-  
+
 (if running-xemacs
     (defun mell-match-count-region (regexp start end &optional buffer)
       (mell-match-count-string regexp (buffer-substring start end buffer))
@@ -412,14 +412,14 @@
 	  (setcar alist new-cons))
 	)
       alist)))
-  
+
 (defun mell-alist-add (alist new-cons)
   (if (null alist)
       (list new-cons)
     (let ((return-alist (copy-alist alist)))
       (mell-alist-add! return-alist new-cons)
       return-alist)))
-  
+
 (defun mell-alist-delete (alist key)
   (if key
       (let (return-alist)
@@ -438,7 +438,7 @@
 
 (defun mell-alist-combine (var-list val-list)
   (let ((i 0))
-    (mapcar '(lambda (var) 
+    (mapcar '(lambda (var)
 	       (prog1 (cons var (nth i val-list))
 		 (setq i (1+ i))))
 	    var-list)))
@@ -489,7 +489,7 @@
 
 (defun mell-key-binding-minor-mode-list (key)
   (delq nil
-	(mapcar 
+	(mapcar
 	 '(lambda (x) (lookup-key x key))
 	 (current-minor-mode-maps))
   ))
@@ -570,5 +570,3 @@
     ))
 
 (provide 'mell)
-
-
