@@ -1,4 +1,8 @@
-EMACS ?= emacs
+ifeq (, $(shell which keg))
+	EMACS	= emacs
+else
+	EMACS	= keg emacs
+endif
 EL		?= text-adjust.el
 ELC		= $(EL:%.el=%.elc)
 ELFLAGS = -q -Q -no-site-file -batch

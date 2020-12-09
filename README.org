@@ -1,6 +1,6 @@
 * text-adjust.el
 
-  #+html: <a href="https://travis-ci.org/github/uwabami/text-adjust.el"><img src="https://travis-ci.org/uwabami/text-adjust.el.svg?branch=master"></a>
+  [[https://github.com/uwabami/text-adjust/workflows/test/badge.svg]]
 
   | Authors   | Youhei SASAKI <uwabami@gfd-dennou.org>           |
   | Date      | $Lastupdate: 2018-08-19 19:44:26$                |

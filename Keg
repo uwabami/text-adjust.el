@@ -1,0 +1,4 @@
+(source gnu melpa)
+(package
+  (text-adjust
+    (recipe . (text-adjust :fetcher github :repo "uwabami/text-adjust"))))
