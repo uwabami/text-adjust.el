@@ -1,6 +1,6 @@
 * text-adjust.el
 
-  [[https://github.com/uwabami/text-adjust/workflows/test/badge.svg]]
+  [[https://github.com/uwabami/text-adjust.el/workflows/test/badge.svg]]
 
   | Authors   | Youhei SASAKI <uwabami@gfd-dennou.org>           |
   | Date      | $Lastupdate: 2018-08-19 19:44:26$                |
